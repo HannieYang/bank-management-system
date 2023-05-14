@@ -10,7 +10,7 @@
             </div>
             <div class="input">
                 <div>密码:</div>
-                <el-input v-model="password1" type="password" show-password placeholder="请输入密码" maxlength="20"/>
+                <el-input v-model="password" type="password" show-password placeholder="请输入密码" maxlength="20"/>
             </div>
             <div class="input">
                 <div>部门:</div>
@@ -61,10 +61,18 @@
                 <el-table-column prop="account" label="账号"/>
                 <el-table-column prop="department" label="部门"/>
                 <el-table-column prop="bussinessType" label="业务类别"/>
-                <el-table-column prop="UserType" label="雇员类别"/>
+                <el-table-column prop="userType" label="雇员类别"/>
                 <el-table-column prop="password" label="密码" />
                 <el-table-column prop="operation" label="操作" >
                     <template #default="scope">
+                        <el-button
+                        link
+                        type="primary"
+                        size="small"
+                        @click="clickModifyButton(scope.$index)"
+                        >
+                        修改
+                        </el-button>
                         <el-button
                         link
                         type="primary"
@@ -77,6 +85,57 @@
                 </el-table-column>
             </el-table>
         </div>
+        <el-dialog v-model="dialogFormVisible2" title="修改雇员">
+            <div class="input">
+                <div>姓名:</div>
+                <el-input v-model="name2" placeholder="请输入姓名" maxlength="10"/>
+            </div>
+            <div class="input">
+                <div>密码:</div>
+                <el-input v-model="password2" type="password" show-password placeholder="请输入密码" maxlength="20"/>
+            </div>
+            <div class="input">
+                <div>部门:</div>
+                <el-select v-model="department2">
+                    <el-option
+                    v-for="item in departmentOptions"
+                    :key="item"
+                    :label="item"
+                    :value="item"
+                    />
+                </el-select>
+            </div>
+            <div class="input">
+                <div>业务:</div>
+                <el-select v-model="bussinessType2">
+                    <el-option
+                    v-for="item in bussinessTypeOptions"
+                    :key="item"
+                    :label="item"
+                    :value="item"
+                    />
+                </el-select>
+            </div>
+            <div class="input">
+                <div>类型:</div>
+                <el-select v-model="userType2">
+                    <el-option
+                    v-for="item in userTypeOptions"
+                    :key="item"
+                    :label="item"
+                    :value="item"
+                    />
+                </el-select>
+            </div>
+            <template #footer>
+            <span class="dialog-footer">
+                <el-button @click="dialogFormVisible2 = false">取消</el-button>
+                <el-button type="primary" @click="modify(employeeId)">
+                修改
+                </el-button>
+            </span>
+            </template>
+        </el-dialog>
     </div>
 </template>
 
@@ -84,6 +143,7 @@
 import {ref, onMounted} from 'vue';
 import { ElMessage } from 'element-plus';
 var dialogFormVisible = ref(false);
+var dialogFormVisible2 = ref(false);
 var name = ref('');
 var password = ref('');
 var department = ref('');
@@ -94,7 +154,31 @@ var userType = ref('前台操作员');
 const userTypeOptions = ['前台操作员','银行经理','银行业务总管','系统管理员'];
 var tableData = ref([]);
 
-// todo：删除操作人
+var employeeId = ref('');
+var name2 = ref('');
+var password2 = ref('');
+var department2 = ref('');
+var bussinessType2 = ref('个人');
+var userType2 = ref('前台操作员');
+
+
+const clickModifyButton = (index) => {
+    console.log(index);
+    employeeId.value = tableData.value[index].employee_id;
+    name2.value = tableData.value[index].name;
+    password2.value = tableData.value[index].password;
+    department2.value = tableData.value[index].department;
+    bussinessType2.value = tableData.value[index].bussinessType;
+    userType2.value = tableData.value[index].userType;
+    dialogFormVisible2.value = true;
+}
+
+// todo：修改雇员
+function modify(employeeId){
+    dialogFormVisible2.value = false;
+}
+
+// todo：删除雇员
 const deleteRow = (index) => {
     console.log(index);
 }

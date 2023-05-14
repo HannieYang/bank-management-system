@@ -74,6 +74,14 @@ function open(){
         })
         return;
     }
+    if(idNumber.value.length != sessionStorage.getItem('IDNumber')){
+        ElMessage({
+            showClose: true,
+            message: '请输入本人身份证号',
+            type: 'error',
+        })
+        return;
+    }
     if(!/^\+?[1-9][0-9]*$/.test(moneyNum.value)){
         ElMessage({
             showClose: true,

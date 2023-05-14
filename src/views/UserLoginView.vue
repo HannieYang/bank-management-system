@@ -33,16 +33,13 @@ import {ref, computed} from 'vue';
 import { useRouter } from "vue-router";
 import { ElMessage } from 'element-plus';
 const router = useRouter();
-const userTypeOptions = ['普通个人用户','个人贵宾用户','企业用户'];
+const userTypeOptions = ['个人用户','企业用户'];
 var userType = ref('普通个人用户');
 const userTypeNum = computed(() => {
     let n = 0;
     switch(userType.value){
-        case '普通个人用户':
+        case '个人用户':
             n = 0;
-            break;
-        case '个人贵宾用户':
-            n = 1;
             break;
         case '企业用户':
             n = 2;

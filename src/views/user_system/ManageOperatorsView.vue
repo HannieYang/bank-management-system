@@ -1,7 +1,7 @@
 <template>
     <div id="container">
         <div id="search-box">
-            <el-button type="primary" @click="dialogFormVisible = true">添加操作人</el-button>
+            <el-button type="primary" @click="clickAddButton">添加操作人</el-button>
         </div>
         <el-dialog v-model="dialogFormVisible" title="添加操作人">
             <div class="input">
@@ -51,6 +51,17 @@ var name = ref('');
 var password = ref('');
 var tableData = ref([]);
 
+function clickAddButton(){
+    if(tableData.value.length < 4){
+        dialogFormVisible.value = true;
+    }else{
+        ElMessage({
+            showClose: true,
+            message: '操作人数已达上限',
+            type: 'error',
+        })
+    }
+}
 // todo：删除操作人
 const deleteRow = (index) => {
     console.log(index);
