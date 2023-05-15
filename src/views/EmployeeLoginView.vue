@@ -20,6 +20,7 @@
 import {ref} from 'vue';
 import { useRouter } from "vue-router";
 import { ElMessage } from 'element-plus';
+import axios from 'axios';
 const router = useRouter();
 var account = ref('');
 var password = ref('');
@@ -52,15 +53,36 @@ function login(){
         return;
     }
     // 向后端发送请求
-    //  设置缓存
-    sessionStorage.setItem('bussinessType','1'); //0表示个人业务，1表示企业业务
-    sessionStorage.setItem('employeeId',1);
-    sessionStorage.setItem('employeeName','guyuanming');
-    sessionStorage.setItem('account','guyuanzhanghao');
-    sessionStorage.setItem('userType','系统管理员');//前台操作员，银行经理，银行业务总管、系统管理员
-    
-    // 登录成功跳转至主页
-    router.push('/employeesystem');
+    axios.post('employee/login',{
+        account: account.value,
+        password: password.value
+    }).then(function(response){
+        response = response.data;
+        if(response.code == 0){
+            //  设置缓存
+            sessionStorage.setItem('bussinessType', response.data.bussiness_type.toString()); //0表示个人业务，1表示企业业务
+            sessionStorage.setItem('employeeId',response.data.employee_id);
+            sessionStorage.setItem('employeeName',response.data.name);
+            sessionStorage.setItem('account','guyuanzhanghao');
+            if(response.data.user_type == 1){
+                sessionStorage.setItem('userType','前台操作员');//前台操作员，银行经理，银行业务总管、系统管理员
+            }else if(response.data.user_type == 2){
+                sessionStorage.setItem('userType','银行经理');//前台操作员，银行经理，银行业务总管、系统管理员
+            }else if(response.data.user_type == 3){
+                sessionStorage.setItem('userType','银行业务总管');//前台操作员，银行经理，银行业务总管、系统管理员
+            }else{
+                sessionStorage.setItem('userType','系统管理员');//前台操作员，银行经理，银行业务总管、系统管理员
+            }
+            // 登录成功跳转至主页
+            router.push('/employeesystem');
+        }else{
+            ElMessage({
+                showClose: true,
+                message: response.message,
+                type: 'error',
+            })
+        }
+    })
 }
 
 </script>

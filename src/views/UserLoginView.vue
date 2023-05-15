@@ -32,6 +32,7 @@
 import {ref, computed} from 'vue';
 import { useRouter } from "vue-router";
 import { ElMessage } from 'element-plus';
+import axios from 'axios';
 const router = useRouter();
 const userTypeOptions = ['个人用户','企业用户'];
 var userType = ref('普通个人用户');
@@ -78,25 +79,55 @@ function login(){
         return;
     }
     // 向后端发送请求
-    
-    //  设置缓存
-    if(userTypeNum.value == 2){
-        sessionStorage.setItem('bussinessType','1'); //0表示个人业务，1表示企业业务
-        sessionStorage.setItem('cUserId',1);
-        sessionStorage.setItem('operatorId',1);
-        sessionStorage.setItem('companyName','公司名');
-        sessionStorage.setItem('operatorName','caozuorenming');
-        sessionStorage.setItem('IDNumber', 'shengfenzhenghao');
-        sessionStorage.setItem('userType','企业用户超级用户');//企业用户超级用户、企业用户普通用户
+    if(userTypeNum.value == 0){
+        axios.post('/personalUser/login', {
+            id_number: idNumber.value,
+            password: password.value
+        }).then(function (response) {
+            response = response.data;
+            if(response.code == 0){
+                //  设置缓存
+                sessionStorage.setItem('bussinessType', '0'); //0表示个人业务，1表示企业业务
+                sessionStorage.setItem('pUserId', response.data.p_user_id);
+                sessionStorage.setItem('userName', response.data.name);
+                sessionStorage.setItem('IDNumber', idNumber.value);
+                sessionStorage.setItem('userType', response.data.user_type == 0 ?'普通个人用户':'个人贵宾用户');//普通个人用户、个人VIP用户
+                // 登录成功跳转至主页
+                router.push("/usersystem");
+            }else{
+                ElMessage({
+                    showClose: true,
+                    message: response.message,
+                    type: 'error',
+                })
+            }
+        })
     }else{
-        sessionStorage.setItem('bussinessType','0'); //0表示个人业务，1表示企业业务
-        sessionStorage.setItem('pUserId',1);
-        sessionStorage.setItem('userName','yonghuming');
-        sessionStorage.setItem('IDNumber', 'shengfenzhenghao');
-        sessionStorage.setItem('userType','普通个人用户');//普通个人用户、个人VIP用户
-    }
-    // 登录成功跳转至主页
-    router.push("/usersystem");
+        axios.post('/companyUser/login', {
+            id_number: idNumber.value,
+            password: password.value
+        }).then(function (response) {
+            response = response.data;
+            if(response.code == 0){
+                //  设置缓存
+                sessionStorage.setItem('bussinessType', '1'); //0表示个人业务，1表示企业业务
+                sessionStorage.setItem('cUserId',response.data.c_user_id);
+                sessionStorage.setItem('operatorId',response.data.operator_id);
+                sessionStorage.setItem('companyName',response.data.company_name);
+                sessionStorage.setItem('operatorName',response.data.operator_name);
+                sessionStorage.setItem('IDNumber', idNumber.value);
+                sessionStorage.setItem('userType',response.data.user_type == 0?'企业用户普通用户':'企业用户超级用户');//企业用户超级用户、企业用户普通用户
+                // 登录成功跳转至主页
+                router.push("/usersystem");
+            }else{
+                ElMessage({
+                    showClose: true,
+                    message: response.message,
+                    type: 'error',
+                })
+            }
+        })
+    } 
 }
 
 function goToRegister(){

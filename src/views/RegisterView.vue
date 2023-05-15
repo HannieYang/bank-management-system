@@ -50,6 +50,7 @@
 import {ref, watch, computed} from 'vue';
 import { useRouter } from "vue-router";
 import { ElMessage } from 'element-plus';
+import axios from 'axios';
 const router = useRouter();
 const userTypeOptions = ['普通个人用户','个人贵宾用户','企业用户'];
 var userType = ref('普通个人用户');
@@ -150,6 +151,30 @@ function register(){
             })
             return;
         }
+        // 向后端发送请求
+        axios.post('/companyUser/register',{
+            id_number: idNumber.value,
+            company_name: companyName.value,
+            operator_name: superName.value,
+            password: password2.value,
+        }).then(function(response){
+            response = response.data;
+            if(response.code == 0){
+                // 请求成功跳转至登录页面
+                ElMessage({
+                    showClose: true,
+                    message: response.message,
+                    type: 'success',
+                })
+                router.push("/userlogin");
+            }else{
+                ElMessage({
+                    showClose: true,
+                    message: response.message,
+                    type: 'error',
+                })
+            }
+        })
     }else{
         if(name.value.length == 0){
             ElMessage({
@@ -199,10 +224,32 @@ function register(){
             })
             return;
         }
+        // 向后端发送请求
+        axios.post('/personalUser/register',{
+            id_number: idNumber.value,
+            name: name.value,
+            password: password1.value,
+            type: userTypeNum.value,
+        }).then(function(response){
+            response = response.data;
+            if(response.code == 0){
+                // 请求成功跳转至登录页面
+                ElMessage({
+                    showClose: true,
+                    message: response.message,
+                    type: 'success',
+                })
+                router.push("/userlogin");
+            }else{
+                ElMessage({
+                    showClose: true,
+                    message: response.message,
+                    type: 'error',
+                })
+            }
+        })
     }
-    // 向后端发送请求
-    // 请求成功跳转至登录页面
-    router.push("/userlogin");
+    
 }
 
 </script>
