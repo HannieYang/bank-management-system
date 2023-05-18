@@ -33,6 +33,9 @@
 <script setup>
 import { ElMessage } from 'element-plus';
 import {ref} from 'vue';
+import {TimestampToDate2} from "../../utils";
+import axios from 'axios';
+
 var idNumber = ref('');
 var account = ref('');
 var password = ref('');
@@ -117,8 +120,52 @@ function modify(){
         return;
     }
     // 向后端发送请求
-    // 清除表单参数
-    clear();
+    if(bussinessType.value == 0){
+        axios.post('account/modifyPersonalByUser',{
+            p_user_id: sessionStorage.getItem('pUserId'),
+            id_number: idNumber.value,
+            account: account.value,
+            password: password.value,
+            new_password: newPassword1.value
+        }).then(function(response){
+            response = response.data;
+            if(response.code == 0){
+                time.value = TimestampToDate2(response.data.create_time);
+                // 清除表单数据
+                clear();
+                showResult.value = true;
+            }else{
+                ElMessage({
+                    showClose: true,
+                    message: response.message,
+                    type: 'error',
+                })
+            }
+        })
+    }else{
+        axios.post('account/modifyCompanyByUser',{
+            c_user_id: sessionStorage.getItem('cUserId'),
+            operator_id: sessionStorage.getItem('operatorId'),
+            id_number: idNumber.value,
+            account: account.value,
+            password: password.value,
+            new_password: newPassword1.value
+        }).then(function(response){
+            response = response.data;
+            if(response.code == 0){
+                time.value = TimestampToDate2(response.data.create_time);
+                // 清除表单数据
+                clear();
+                showResult.value = true;
+            }else{
+                ElMessage({
+                    showClose: true,
+                    message: response.message,
+                    type: 'error',
+                })
+            }
+        })
+    }
 }
 </script>
 

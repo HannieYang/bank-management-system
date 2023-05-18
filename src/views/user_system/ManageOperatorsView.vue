@@ -10,7 +10,7 @@
             </div>
             <div class="input">
                 <div>密码:</div>
-                <el-input v-model="password1" type="password" show-password placeholder="请输入密码" maxlength="20"/>
+                <el-input v-model="password" type="password" show-password placeholder="请输入密码" maxlength="20"/>
             </div>
             <template #footer>
             <span class="dialog-footer">
@@ -46,6 +46,8 @@
 <script setup>
 import {ref, onMounted} from 'vue';
 import { ElMessage } from 'element-plus';
+import axios from 'axios';
+
 var dialogFormVisible = ref(false);
 var name = ref('');
 var password = ref('');
@@ -64,7 +66,28 @@ function clickAddButton(){
 }
 // todo：删除操作人
 const deleteRow = (index) => {
-    console.log(index);
+    // console.log(index);
+    // 向后端请求
+    axios.post('operator/deleteOperator',{
+        c_user_id: sessionStorage.getItem('cUserId'),
+        operator_id: tableData.value[index].operator_id
+    }).then(function(response){
+        response = response.data;
+        if(response.code == 0){
+            tableData.value = response.data.operators;
+            ElMessage({
+                showClose: true,
+                message: "删除成功",
+                type: 'success',
+            })
+        }else{
+            ElMessage({
+                showClose: true,
+                message: response.message,
+                type: 'error',
+            })
+        }
+    })
 }
 
 // todo
@@ -85,9 +108,29 @@ function add(){
         })
         return;
     }
-    // 判断密码是否已经存在
-    dialogFormVisible.value = false;
     // 向后端请求
+    axios.post('operator/addOperator',{
+        c_user_id: sessionStorage.getItem('cUserId'),
+        operator_name: name.value,
+        password: password.value
+    }).then(function(response){
+        response = response.data;
+        if(response.code == 0){
+            tableData.value = response.data.operators;
+            ElMessage({
+                showClose: true,
+                message: "添加成功",
+                type: 'success',
+            })
+        }else{
+            ElMessage({
+                showClose: true,
+                message: response.message,
+                type: 'error',
+            })
+        }
+    })
+    dialogFormVisible.value = false;
     // 清除参数
     name.value = '';
     password.value = '';
@@ -95,6 +138,20 @@ function add(){
 
 onMounted(()=>{
     // todo:获取操作人列表
+    axios.post('operator/getAllOperators',{
+        c_user_id: sessionStorage.getItem('cUserId')
+    }).then(function(response){
+        response = response.data;
+        if(response.code == 0){
+            tableData.value = response.data.operators;
+        }else{
+            ElMessage({
+                showClose: true,
+                message: response.message,
+                type: 'error',
+            })
+        }
+    })
 })
 </script>
 

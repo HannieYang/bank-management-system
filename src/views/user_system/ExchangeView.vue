@@ -42,6 +42,9 @@
 <script setup>
 import { ElMessage } from 'element-plus';
 import {ref, onMounted} from 'vue';
+import {TimestampToDate2} from "../../utils";
+import axios from 'axios';
+
 var account = ref('');
 var toAccount = ref('');
 var userName = ref('');
@@ -134,14 +137,69 @@ function exchange(){
         })
         return;
     }
-    
     // 向后端发送请求
-    // 清除表单参数
-    clear();
+    if(bussinessType.value == 0){
+        axios.post('account/exchangePersonalByUser',{
+            p_user_id: sessionStorage.getItem('pUserId'),
+            account: account.value,
+            password: password.value,
+            user_name: userName.value,
+            to_account: toAccount.value,
+            to_user_name: toUserName.value,
+            amount: moneyNum.value,
+        }).then(function(response){
+            response = response.data;
+            if(response.code == 0){
+                accountR.value = account.value;
+                toAccountR.value = toAccount.value;
+                moneyNumR.value = moneyNum.value;
+                balance.value = response.data.balance;
+                time.value = TimestampToDate2(response.data.create_time);
+                // 清除表单数据
+                clear();
+                showResult.value = true;
+            }else{
+                ElMessage({
+                    showClose: true,
+                    message: response.message,
+                    type: 'error',
+                })
+            }
+        })
+    }else{
+        axios.post('account/exchangeCompanyByUser',{
+            c_user_id: sessionStorage.getItem('cUserId'),
+            operator_id: sessionStorage.getItem('operatorId'),
+            account: account.value,
+            password: password.value,
+            user_name: userName.value,
+            to_account: toAccount.value,
+            to_user_name: toUserName.value,
+            amount: moneyNum.value,
+        }).then(function(response){
+            response = response.data;
+            if(response.code == 0){
+                accountR.value = account.value;
+                toAccountR.value = toAccount.value;
+                moneyNumR.value = moneyNum.value;
+                balance.value = response.data.balance;
+                time.value = TimestampToDate2(response.data.create_time);
+                // 清除表单数据
+                clear();
+                showResult.value = true;
+            }else{
+                ElMessage({
+                    showClose: true,
+                    message: response.message,
+                    type: 'error',
+                })
+            }
+        })
+    }
 }
 onMounted(() => {
     bussinessType.value = sessionStorage.getItem('bussinessType')
-    if(bussinessType.value == '0'){
+    if(bussinessType.value == 0){
         nameType.value = '姓名';
     }else{
         nameType.value = '企业名';

@@ -27,6 +27,8 @@
 <script setup>
 import { ElMessage } from 'element-plus';
 import {ref,onMounted} from 'vue';
+import {TimestampToDate2} from "../../utils";
+import axios from 'axios';
 
 var idNumber = ref('');
 var account = ref('');
@@ -87,8 +89,29 @@ function close(){
         return;
     }
     // 向后端发送请求
-    // 清除表单参数
-    clear();
+    axios.post('account/closeByEmployee',{
+        bussiness_type: bussinessType.value,
+        employee_id: sessionStorage.getItem('employeeId'),
+        id_number: idNumber.value,
+        account: account.value,
+        password: password.value
+    }).then(function(response){
+        response = response.data;
+        if(response.code == 0){
+            moneyNum.value = response.data.amount;
+            balance.value = response.data.balance;
+            time.value = TimestampToDate2(response.data.create_time);
+            // 清除表单数据
+            clear();
+            showResult.value = true;
+        }else{
+            ElMessage({
+                showClose: true,
+                message: response.message,
+                type: 'error',
+            })
+        }
+    })
 }
 onMounted(() => {
     bussinessType.value = sessionStorage.getItem('bussinessType')

@@ -42,6 +42,9 @@
 <script setup>
 import { ElMessage } from 'element-plus';
 import {ref, onMounted} from 'vue';
+import {TimestampToDate2} from "../../utils";
+import axios from 'axios';
+
 var account = ref('');
 var toAccount = ref('');
 var userName = ref('');
@@ -136,8 +139,34 @@ function exchange(){
     }
     
     // 向后端发送请求
-    // 清除表单参数
-    clear();
+    axios.post('account/exchangeByEmployee',{
+        bussiness_type: bussinessType.value,
+        employee_id: sessionStorage.getItem('employeeId'),
+        account: account.value,
+        password: password.value,
+        user_name: userName.value,
+        to_account: toAccount.value,
+        to_user_name: toUserName.value,
+        amount: moneyNum.value,
+    }).then(function(response){
+        response = response.data;
+        if(response.code == 0){
+            accountR.value = account.value;
+            toAccountR.value = toAccount.value;
+            moneyNumR.value = moneyNum.value;
+            balance.value = response.data.balance;
+            time.value = TimestampToDate2(response.data.create_time);
+            // 清除表单数据
+            clear();
+            showResult.value = true;
+        }else{
+            ElMessage({
+                showClose: true,
+                message: response.message,
+                type: 'error',
+            })
+        }
+    })
 }
 onMounted(() => {
     bussinessType.value = sessionStorage.getItem('bussinessType')

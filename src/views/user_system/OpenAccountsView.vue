@@ -37,6 +37,8 @@
 <script setup>
 import {ref, onMounted} from 'vue';
 import { ElMessage } from 'element-plus';
+import axios from 'axios';
+import {TimestampToDate2} from "../../utils";
 
 var idNumber = ref('');
 var accountType = ref('0');
@@ -74,7 +76,7 @@ function open(){
         })
         return;
     }
-    if(idNumber.value.length != sessionStorage.getItem('IDNumber')){
+    if(idNumber.value != sessionStorage.getItem('IDNumber')){
         ElMessage({
             showClose: true,
             message: '请输入本人身份证号',
@@ -115,8 +117,54 @@ function open(){
         return;
     }
     // 向后端发送请求
-    // 清除表单数据
-    clear();
+    if(bussinessType.value == 0){
+        axios.post('account/addPersonalAccountByUser',{
+            p_user_id: sessionStorage.getItem('pUserId'),
+            id_number: idNumber.value,
+            password: password1.value,
+            type: accountType.value,
+            amount: moneyNum.value,
+        }).then(function(response){
+            response = response.data;
+            if(response.code == 0){
+                account.value = response.data.account;
+                time.value = TimestampToDate2(response.data.create_time);
+                // 清除表单数据
+                clear();
+                showResult.value = true;
+            }else{
+                ElMessage({
+                    showClose: true,
+                    message: response.message,
+                    type: 'error',
+                })
+            }
+        })
+    }else{
+        axios.post('account/addCompanyAccountByUser',{
+            c_user_id: sessionStorage.getItem('cUserId'),
+            operator_id: sessionStorage.getItem('operatorId'),
+            id_number: idNumber.value,
+            password: password1.value,
+            type: accountType.value,
+            amount: moneyNum.value,
+        }).then(function(response){
+            response = response.data;
+            if(response.code == 0){
+                account.value = response.data.account;
+                time.value = TimestampToDate2(response.data.create_time);
+                // 清除表单数据
+                clear();
+                showResult.value = true;
+            }else{
+                ElMessage({
+                    showClose: true,
+                    message: response.message,
+                    type: 'error',
+                })
+            }
+        })
+    }
 }
 onMounted(() => {
     bussinessType.value = sessionStorage.getItem('bussinessType')

@@ -75,6 +75,15 @@ var bussinessType = ref('');
 
 function exit(){
     // 清除所有缓存
+    sessionStorage.removeItem('bussinessType');
+    sessionStorage.removeItem('pUserId');
+    sessionStorage.removeItem('userName');
+    sessionStorage.removeItem('IDNumber');
+    sessionStorage.removeItem('userType');
+    sessionStorage.removeItem('cUserId');
+    sessionStorage.removeItem('operatorId');
+    sessionStorage.removeItem('companyName');
+    sessionStorage.removeItem('operatorName');
     // 跳转至登录页面
     router.push("/userlogin");
 }
@@ -86,7 +95,6 @@ onMounted(() => {
     }else{
         userName.value = sessionStorage.getItem('operatorName');
     }
-
 });
 </script>
 

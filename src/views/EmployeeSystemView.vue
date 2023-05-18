@@ -99,6 +99,11 @@ var bussinessType = ref('');
 
 function exit(){
     // 清除所有缓存
+    sessionStorage.removeItem('bussinessType');
+    sessionStorage.removeItem('employeeId');
+    sessionStorage.removeItem('employeeName');
+    sessionStorage.removeItem('account');
+    sessionStorage.removeItem('userType');
     // 跳转至登录页面
     router.push("/employeelogin");
 }

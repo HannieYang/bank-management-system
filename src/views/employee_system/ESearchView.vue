@@ -21,9 +21,10 @@
                 <el-date-picker
                     v-model="timeInterval"
                     type="daterange"
-                    range-separator="To"
+                    range-separator="到"
                     start-placeholder="开始日期"
                     end-placeholder="结束日期"
+                    value-format="YYYY-MM-DD"
                 />
             </div>
             <el-button type="primary" @click="search">查询</el-button>
@@ -36,9 +37,9 @@
         <!-- TODO 修改表格 -->
         <div id="table" v-show="showTable">
             <el-table :data="tableData" border style="width: 100%" max-height="500">
-                <el-table-column prop="datetime" label="时间"/>
+                <el-table-column prop="time" label="时间"/>
                 <el-table-column prop="operation" label="操作" />
-                <el-table-column prop="toAccount" label="对方账户" />
+                <el-table-column prop="to_account" label="对方账户" />
                 <el-table-column prop="amount" label="操作金额" />
                 <el-table-column prop="balance" label="余额" />
             </el-table>
@@ -47,8 +48,10 @@
 </template>
 
 <script setup>
-import {ref} from 'vue';
+import {ref, onMounted} from 'vue';
 import { ElMessage } from 'element-plus';
+import {TimestampToDate2} from "../../utils";
+import axios from 'axios';
 
 var account = ref('');
 var password = ref('');
@@ -59,6 +62,7 @@ var balance = ref('');
 var time = ref('');
 var showTable = ref(false);
 var tableData = ref([]);
+var bussinessType = ref('');
 
 // todo
 function search(){
@@ -98,8 +102,44 @@ function search(){
         }
     }
     
-    // 向后端发送请求
+    axios.post('account/searchByEmployee',{
+        bussiness_type: bussinessType.value,
+        employee_id: sessionStorage.getItem('employeeId'),
+        account: account.value,
+        password: password.value,
+        is_detail: isDetail.value,
+        start_date: timeInterval.value[0].toString(),
+        end_date: timeInterval.value[1].toString(),
+    }).then(function(response){
+        response = response.data;
+        if(response.code == 0){
+            balance.value = response.data.balance;
+            time.value = TimestampToDate2(response.data.create_time);
+            if(isDetail.value == 1){
+                tableData.value = dealData(response.data.details);
+                showTable.value = true;
+            }else{
+                showTable.value = false;
+            }
+        }else{
+            ElMessage({
+                showClose: true,
+                message: response.message,
+                type: 'error',
+            })
+        }
+    })
 }
+
+function dealData(data){
+    for(let i = 0; i< data.length; i++){
+        data[i].time = TimestampToDate2(data[i].time);
+    }
+    return data;
+}
+onMounted(() => {
+    bussinessType.value = sessionStorage.getItem('bussinessType')
+});
 </script>
 
 <style scoped>

@@ -87,7 +87,7 @@ function login(){
             response = response.data;
             if(response.code == 0){
                 //  设置缓存
-                sessionStorage.setItem('bussinessType', '0'); //0表示个人业务，1表示企业业务
+                sessionStorage.setItem('bussinessType', 0); //0表示个人业务，1表示企业业务
                 sessionStorage.setItem('pUserId', response.data.p_user_id);
                 sessionStorage.setItem('userName', response.data.name);
                 sessionStorage.setItem('IDNumber', idNumber.value);
@@ -110,7 +110,7 @@ function login(){
             response = response.data;
             if(response.code == 0){
                 //  设置缓存
-                sessionStorage.setItem('bussinessType', '1'); //0表示个人业务，1表示企业业务
+                sessionStorage.setItem('bussinessType', 1); //0表示个人业务，1表示企业业务
                 sessionStorage.setItem('cUserId',response.data.c_user_id);
                 sessionStorage.setItem('operatorId',response.data.operator_id);
                 sessionStorage.setItem('companyName',response.data.company_name);

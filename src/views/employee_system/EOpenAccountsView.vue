@@ -37,6 +37,8 @@
 <script setup>
 import {ref, onMounted} from 'vue';
 import { ElMessage } from 'element-plus';
+import {TimestampToDate2} from "../../utils";
+import axios from 'axios';
 
 var idNumber = ref('');
 var accountType = ref('0');
@@ -106,9 +108,29 @@ function open(){
         })
         return;
     }
-    // 向后端发送请求
-    // 清除表单数据
-    clear();
+    axios.post('account/addAccountByEmployee',{
+        bussiness_type: bussinessType.value,
+        employee_id: sessionStorage.getItem('employeeId'),
+        id_number: idNumber.value,
+        password: password1.value,
+        type: accountType.value,
+        amount: moneyNum.value,
+    }).then(function(response){
+        response = response.data;
+        if(response.code == 0){
+            account.value = response.data.account;
+            time.value = TimestampToDate2(response.data.create_time);
+            // 清除表单数据
+            clear();
+            showResult.value = true;
+        }else{
+            ElMessage({
+                showClose: true,
+                message: response.message,
+                type: 'error',
+            })
+        }
+    })
 }
 onMounted(() => {
     bussinessType.value = sessionStorage.getItem('bussinessType')

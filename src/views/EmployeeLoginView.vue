@@ -60,10 +60,10 @@ function login(){
         response = response.data;
         if(response.code == 0){
             //  设置缓存
-            sessionStorage.setItem('bussinessType', response.data.bussiness_type.toString()); //0表示个人业务，1表示企业业务
+            sessionStorage.setItem('bussinessType', response.data.bussiness_type); //0表示个人业务，1表示企业业务
             sessionStorage.setItem('employeeId',response.data.employee_id);
             sessionStorage.setItem('employeeName',response.data.name);
-            sessionStorage.setItem('account','guyuanzhanghao');
+            sessionStorage.setItem('account', account.value);
             if(response.data.user_type == 1){
                 sessionStorage.setItem('userType','前台操作员');//前台操作员，银行经理，银行业务总管、系统管理员
             }else if(response.data.user_type == 2){
