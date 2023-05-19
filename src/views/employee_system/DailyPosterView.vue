@@ -7,6 +7,7 @@
                     v-model="timeInterval"
                     type="date"
                     placeholder="选择日期"
+                    value-format="YYYY-MM-DD"
                 />
             </div>
             <el-button type="primary" @click="search">查询</el-button>
@@ -14,10 +15,10 @@
         <!-- TODO 修改表格 -->
         <div id="table">
             <el-table :data="tableData" border style="width: 100%" max-height="500">
-                <el-table-column prop="datetime" label="时间"/>
+                <el-table-column prop="time" label="时间"/>
                 <el-table-column prop="operation" label="操作" />
                 <el-table-column prop="account" label="账户" />
-                <el-table-column prop="toAccount" label="对方账户" />
+                <el-table-column prop="to_account" label="对方账户" />
                 <el-table-column prop="amount" label="操作金额" />
                 <el-table-column prop="balance" label="账户余额" />
             </el-table>
@@ -28,6 +29,8 @@
 <script setup>
 import {ref} from 'vue';
 import { ElMessage } from 'element-plus';
+import {TimestampToDate2} from "../../utils";
+import axios from 'axios';
 
 var timeInterval = ref('');
 var tableData = ref([]);
@@ -43,8 +46,30 @@ function search(){
         })
         return;
     }
-
+    // console.log(typeof(timeInterval.value));
     // 向后端发送请求
+    axios.post('employeeOperation/getDataByIds',{
+        employee_id_list: [sessionStorage.getItem('employeeId')],
+        date: timeInterval.value
+    }).then(function(response){
+        response = response.data;
+        if(response.code == 0){
+            tableData.value = dealData(response.data.operations);
+        }else{
+            ElMessage({
+                showClose: true,
+                message: response.message,
+                type: 'error',
+            })
+        }
+    })
+}
+
+function dealData(data){
+    for(let i = 0; i< data.length; i++){
+        data[i].time = TimestampToDate2(data[i].time);
+    }
+    return data;
 }
 </script>
 

@@ -15,9 +15,9 @@
                 >
                     <el-option
                         v-for="item in options"
-                        :key="item.id"
+                        :key="item.employee_id"
                         :label="item.name"
-                        :value="item.id"
+                        :value="item.employee_id"
                     />
                 </el-select>
             </div>
@@ -28,6 +28,7 @@
                     v-model="timeInterval"
                     type="date"
                     placeholder="选择日期"
+                    value-format="YYYY-MM-DD"
                 />
             </div>
             <el-button type="primary" @click="search">查询</el-button>
@@ -35,11 +36,11 @@
         <!-- TODO 修改表格 -->
         <div id="table">
             <el-table :data="tableData" border style="width: 100%" max-height="500">
-                <el-table-column prop="datetime" label="时间"/>
+                <el-table-column prop="time" label="时间"/>
                 <el-table-column prop="name" label="人员"/>
                 <el-table-column prop="operation" label="操作" />
                 <el-table-column prop="account" label="账户" />
-                <el-table-column prop="toAccount" label="对方账户" />
+                <el-table-column prop="to_account" label="对方账户" />
                 <el-table-column prop="amount" label="操作金额" />
                 <el-table-column prop="balance" label="账户余额" />
             </el-table>
@@ -48,8 +49,10 @@
 </template>
 
 <script setup>
-import {ref} from 'vue';
+import {ref, onMounted} from 'vue';
 import { ElMessage } from 'element-plus';
+import {TimestampToDate2} from "../../utils";
+import axios from 'axios';
 
 var peopleNum = ref('');
 var selected = ref([]);
@@ -101,7 +104,57 @@ function search(){
     }
     
     // 向后端发送请求
+    axios.post('employeeOperation/getDataByIds',{
+        employee_id_list: selected.value,
+        date: timeInterval.value
+    }).then(function(response){
+        response = response.data;
+        if(response.code == 0){
+            tableData.value = dealData(response.data.operations);
+        }else{
+            ElMessage({
+                showClose: true,
+                message: response.message,
+                type: 'error',
+            })
+        }
+    })
 }
+
+function dealData(data){
+    for(let i = 0; i< data.length; i++){
+        data[i].time = TimestampToDate2(data[i].time);
+    }
+    return data;
+}
+
+function dealOptions(data){
+    var result = [];
+    for(let i=0; i<data.length; i++){
+        result.push(data[i].employee_id);
+    }
+    return result;
+}
+
+onMounted(()=>{
+    // 获取业务下属成员列表
+    axios.post('employee/getEmployeeByBussiness',{
+        bussiness_type: sessionStorage.getItem('bussinessType')
+    }).then(function(response){
+        response = response.data;
+        if(response.code == 0){
+            options.value = response.data.employees;
+            peopleNum.value = response.data.employees.length;
+            selected.value = dealOptions(response.data.employees);
+        }else{
+            ElMessage({
+                showClose: true,
+                message: response.message,
+                type: 'error',
+            })
+        }
+    })
+});
 </script>
 
 <style scoped>

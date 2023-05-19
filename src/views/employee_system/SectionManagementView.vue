@@ -15,9 +15,9 @@
                 >
                     <el-option
                         v-for="item in options"
-                        :key="item.id"
+                        :key="item.employee_id"
                         :label="item.name"
-                        :value="item.id"
+                        :value="item.employee_id"
                     />
                 </el-select>
             </div>
@@ -28,6 +28,7 @@
                     v-model="timeInterval"
                     type="date"
                     placeholder="选择日期"
+                    value-format="YYYY-MM-DD"
                 />
             </div>
             <el-button type="primary" @click="search">查询</el-button>
@@ -35,11 +36,11 @@
         <!-- TODO 修改表格 -->
         <div id="table">
             <el-table :data="tableData" border style="width: 100%" max-height="500">
-                <el-table-column prop="datetime" label="时间"/>
+                <el-table-column prop="time" label="时间"/>
                 <el-table-column prop="name" label="部员"/>
                 <el-table-column prop="operation" label="操作" />
                 <el-table-column prop="account" label="账户" />
-                <el-table-column prop="toAccount" label="对方账户" />
+                <el-table-column prop="to_account" label="对方账户" />
                 <el-table-column prop="amount" label="操作金额" />
                 <el-table-column prop="balance" label="账户余额" />
             </el-table>
@@ -48,8 +49,10 @@
 </template>
 
 <script setup>
-import {ref} from 'vue';
+import {ref, onMounted} from 'vue';
 import { ElMessage } from 'element-plus';
+import {TimestampToDate2} from "../../utils";
+import axios from 'axios';
 
 var peopleNum = ref('');
 var selected = ref([]);
@@ -57,24 +60,24 @@ var options = ref([]);
 // var selected = ref(['1','2','3']);
 // const options = [
 //   {
-//     id: '1',
-//     label: 'Option1',
+//     employee_id: 2,
+//     name: 'Option1',
 //   },
 //   {
-//     id: '2',
-//     label: 'Option2',
+//     employee_id: 5,
+//     name: 'Option2',
 //   },
 //   {
-//     id: '3',
-//     label: 'Option3',
+//     employee_id: 7,
+//     name: 'Option3',
 //   },
 //   {
-//     id: '4',
-//     label: 'Option4',
+//     employee_id: 10,
+//     name: 'Option4',
 //   },
 //   {
-//     id: '5',
-//     label: 'Option5',
+//     employee_id: 11,
+//     name: 'Option5',
 //   },
 // ]
 var timeInterval = ref('');
@@ -99,9 +102,59 @@ function search(){
         })
         return;
     }
-    
+    // console.log(selected.value);
     // 向后端发送请求
+    axios.post('employeeOperation/getDataByIds',{
+        employee_id_list: selected.value,
+        date: timeInterval.value
+    }).then(function(response){
+        response = response.data;
+        if(response.code == 0){
+            tableData.value = dealData(response.data.operations);
+        }else{
+            ElMessage({
+                showClose: true,
+                message: response.message,
+                type: 'error',
+            })
+        }
+    })
 }
+
+function dealData(data){
+    for(let i = 0; i< data.length; i++){
+        data[i].time = TimestampToDate2(data[i].time);
+    }
+    return data;
+}
+
+function dealOptions(data){
+    var result = [];
+    for(let i=0; i<data.length; i++){
+        result.push(data[i].employee_id);
+    }
+    return result;
+}
+
+onMounted(()=>{
+    // 获取部门成员列表
+    axios.post('employee/getEmployeeByDepartment',{
+        employee_id: sessionStorage.getItem('employeeId')
+    }).then(function(response){
+        response = response.data;
+        if(response.code == 0){
+            options.value = response.data.employees;
+            peopleNum.value = response.data.employees.length;
+            selected.value = dealOptions(response.data.employees);
+        }else{
+            ElMessage({
+                showClose: true,
+                message: response.message,
+                type: 'error',
+            })
+        }
+    })
+});
 </script>
 
 <style scoped>

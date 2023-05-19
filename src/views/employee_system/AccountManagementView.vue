@@ -29,6 +29,7 @@
 <script setup>
 import { ElMessage } from 'element-plus';
 import {ref,onMounted} from 'vue';
+import axios from 'axios';
 var name = ref('');
 var account = ref('');
 var password = ref('');
@@ -77,8 +78,28 @@ function modify(){
         return;
     }
     // 向后端发送请求
-    // 清除表单参数
-    clear();
+    axios.post('employeeManage/add',{
+        employee_id: sessionStorage.getItem('employeeId'),
+        password: password.value,
+        new_password: newPassword1.value
+    }).then(function(response){
+        response = response.data;
+        if(response.code == 0){
+            // 清除表单数据
+            clear();
+            ElMessage({
+                showClose: true,
+                message: "提交成功",
+                type: 'success',
+            })
+        }else{
+            ElMessage({
+                showClose: true,
+                message: response.message,
+                type: 'error',
+            })
+        }
+    })
 }
 onMounted(()=>{
     name.value = sessionStorage.getItem('employeeName');
