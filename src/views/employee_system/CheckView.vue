@@ -6,8 +6,8 @@
                 <el-table-column prop="name" label="姓名"/>
                 <el-table-column prop="account" label="账号"/>
                 <el-table-column prop="department" label="部门"/>
-                <el-table-column prop="bussinessType" label="业务类别"/>
-                <el-table-column prop="UserType" label="雇员类别"/>
+                <el-table-column prop="bussiness_type" label="业务类别"/>
+                <el-table-column prop="user_type" label="雇员类别"/>
                 <el-table-column prop="password" label="新密码" />
                 <el-table-column prop="operation" label="操作" >
                     <template #default="scope">
@@ -37,20 +37,73 @@
 <script setup>
 import {ref, onMounted} from 'vue';
 import { ElMessage } from 'element-plus';
+import axios from 'axios';
 var tableData = ref([]);
 
 // todo：通过新密码
 const pass = (index) => {
     console.log(index);
+    axios.post('employeeManage/modify',{
+        id: manage_list[index].id,
+        is_pass:1
+    }).then(function (response) {  
+        response = response.data;
+        if(response.code == 0){
+            tableData.value = response.data.manage_list;
+            ElMessage({
+                showClose: true,
+                message: response.message,
+                type: 'success',
+            })
+        }else{
+            ElMessage({
+                showClose: true,
+                message: response.message,
+                type: 'error',
+            })
+        }
+    })
 }
 
 // todo：审核不通过新密码
 const unpass = (index) => {
     console.log(index);
+    axios.post('employeeManage/modify',{
+        id: manage_list[index].id,
+        is_pass:0
+    }).then(function (response) {  
+        response = response.data;
+        if(response.code == 0){
+            tableData.value = response.data.manage_list;
+            ElMessage({
+                showClose: true,
+                message: response.message,
+                type: 'success',
+            })
+        }else{
+            ElMessage({
+                showClose: true,
+                message: response.message,
+                type: 'error',
+            })
+        }
+    })
 }
 
 onMounted(()=>{
     // todo:获取审核列表
+    axios.get('employeeManage/get').then(function (response) {  
+        response = response.data;
+        if(response.code == 0){
+            tableData.value = response.data.manage_list;
+        }else{
+            ElMessage({
+                showClose: true,
+                message: response.message,
+                type: 'error',
+            })
+        }
+    })
 })
 </script>
 

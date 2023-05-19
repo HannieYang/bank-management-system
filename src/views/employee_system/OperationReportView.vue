@@ -20,11 +20,32 @@
 <script setup>
 import {ref, onMounted} from 'vue';
 import { ElMessage } from 'element-plus';
+import {TimestampToDate2} from "../../utils";
+import axios from 'axios';
 
 var tableData = ref([]);
 
+function dealData(data){
+    for(let i = 0; i< data.length; i++){
+        data[i].time = TimestampToDate2(data[i].time);
+    }
+    return data;
+}
+
 onMounted(()=>{
     // 向后端请求数据
+    axios.get('account/getAllOperation').then(function (response) {  
+        response = response.data;
+        if(response.code == 0){
+            tableData.value = dealData(response.data.operations);
+        }else{
+            ElMessage({
+                showClose: true,
+                message: response.message,
+                type: 'error',
+            })
+        }
+    })
 })
 </script>
 
