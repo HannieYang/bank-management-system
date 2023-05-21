@@ -109,8 +109,8 @@ function search(){
             account: account.value,
             password: password.value,
             is_detail: isDetail.value,
-            start_date: timeInterval.value[0].toString(),
-            end_date: timeInterval.value[1].toString(),
+            start_date: timeInterval.value[0],
+            end_date: timeInterval.value[1],
         }).then(function(response){
             response = response.data;
             if(response.code == 0){
@@ -122,6 +122,7 @@ function search(){
                 }else{
                     showTable.value = false;
                 }
+                showResult.value = true;
             }else{
                 ElMessage({
                     showClose: true,

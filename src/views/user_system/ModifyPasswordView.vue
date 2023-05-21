@@ -32,7 +32,7 @@
 
 <script setup>
 import { ElMessage } from 'element-plus';
-import {ref} from 'vue';
+import {ref, onMounted} from 'vue';
 import {TimestampToDate2} from "../../utils";
 import axios from 'axios';
 
@@ -43,6 +43,7 @@ var newPassword1 = ref('');
 var newPassword2 = ref('');
 var showResult = ref(false)
 var time = ref('');
+var bussinessType = ref('');
 
 function clear(){
     idNumber.value = '';
@@ -167,6 +168,9 @@ function modify(){
         })
     }
 }
+onMounted(() => {
+    bussinessType.value = sessionStorage.getItem('bussinessType')
+});
 </script>
 
 <style scoped>
