@@ -35,7 +35,7 @@ import { ElMessage } from 'element-plus';
 import axios from 'axios';
 const router = useRouter();
 const userTypeOptions = ['个人用户','企业用户'];
-var userType = ref('普通个人用户');
+var userType = ref('个人用户');
 const userTypeNum = computed(() => {
     let n = 0;
     switch(userType.value){
