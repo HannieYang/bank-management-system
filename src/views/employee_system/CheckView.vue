@@ -44,7 +44,7 @@ var tableData = ref([]);
 const pass = (index) => {
     console.log(index);
     axios.post('employeeManage/modify',{
-        id: manage_list[index].id,
+        id: tableData.value[index].id,
         is_pass:1
     }).then(function (response) {  
         response = response.data;
@@ -69,7 +69,7 @@ const pass = (index) => {
 const unpass = (index) => {
     console.log(index);
     axios.post('employeeManage/modify',{
-        id: manage_list[index].id,
+        id: tableData.value[index].id,
         is_pass:0
     }).then(function (response) {  
         response = response.data;

@@ -180,8 +180,20 @@ const clickModifyButton = (index) => {
     name2.value = tableData.value[index].name;
     password2.value = tableData.value[index].password;
     department2.value = tableData.value[index].department;
-    bussinessType2.value = tableData.value[index].bussinessType;
-    userType2.value = tableData.value[index].userType;
+    if(tableData.value[index].bussiness_type == "个人"){
+        bussinessType2.value = 0;
+    }else{
+        bussinessType2.value = 1;
+    }
+    if(tableData.value[index].user_type == "前台操作员"){
+        userType2.value = 1;
+    }else if(tableData.value[index].user_type == "银行经理"){
+        userType2.value = 2
+    }else if(tableData.value[index].user_type == "银行业务总管"){
+        userType2.value = 3
+    }else{
+        userType2.value = 4
+    }
     dialogFormVisible2.value = true;
 }
 
@@ -234,7 +246,7 @@ function modify(employeeId){
 const deleteRow = (index) => {
     // console.log(index);
     axios.post('employee/delete',{
-        employee_id: tableData[index].employee_id
+        employee_id: tableData.value[index].employee_id
     }).then(function(response){
         response = response.data;
         if(response.code == 0){

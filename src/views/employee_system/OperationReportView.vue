@@ -2,7 +2,7 @@
     <div id="container">
         <!-- TODO 修改表格 -->
         <div id="table">
-            <el-table :data="tableData" border show-summary style="width: 100%" max-height="500">
+            <el-table :data="tableData" border style="width: 100%" max-height="500">
                 <el-table-column prop="time" label="时间"/>
                 <el-table-column prop="p_name" label="个人用户"/>
                 <el-table-column prop="c_name" label="企业用户"/>
