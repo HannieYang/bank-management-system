@@ -1,6 +1,6 @@
 # bank-management-system
 
-This template should help get you started developing with Vue 3 in Vite.
+课程大作业，银行管理系统前端
 
 ## Recommended IDE Setup
 
